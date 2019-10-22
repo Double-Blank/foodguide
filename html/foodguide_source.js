@@ -1864,6 +1864,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				sanity: sanity_med,
 				perish: perish_med,
 				mode: 'together'
+			},
+			pepper: {
+				name: 'Pepper',
+				isveggie: true,
+				veggie: 1,
+				health: -healing_med,
+				hunger: calories_tiny,
+				sanity: -sanity_med,
+				perish: perish_slow,
+				stack: stack_size_smallitem,
+				mode: 'together'
+			},
+			pepper_cooked: {
+				name: 'Roasted Pepper',
+				isveggie: true,
+				veggie: 1,
+				precook: 1,
+				health: -healing_small,
+				hunger: calories_tiny,
+				sanity: -sanity_small,
+				perish: perish_slow,
+				stack: stack_size_smallitem,
+				mode: 'together'
 			}
 		},
 		//note: qty not used yet, this is for rapid summation
@@ -2807,6 +2830,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				sanity: sanity_tiny,
 				cooktime: 2.5,
 				note: 'Recipe produces 3; heals 120 health over 2 minutes',
+				mode: 'together'
+			},
+			pepperpopper: {
+				name: 'Stuffed Pepper Poppers',
+				test: function(cooker, names, tags) {
+				return (names.pepper || names.pepper_cooked) && tags.meat && tags.meat <= 1.5 && !tags.inedible;
+				},
+				requirements: [NAME('pepper'), TAG('meat', COMPARE('<=', 1.5)), NOT(TAG('inedible'))],
+				priority: 20,
+				foodtype: 'meat',
+				health: healing_medlarge,
+				hunger: calories_med,
+				perish: perish_slow,
+				sanity: -sanity_tiny,
+				cooktime: 2,
+				temperature: hot_food_bonus_temp,
+				temperatureduration: food_temp_long,
+				note: 'Increases temperature by 40 degrees in 15 seconds.',
 				mode: 'together'
 			}
 		},
@@ -4211,6 +4252,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					displaying = false,
 					appendSlot = function (id) {
 						var i, item = food[id] || recipes[id] || null;
+						if (!id) {
+							console && console.warn('ID not set');
+							return -1;
+						}
 						if (limited) {
 							for (i = 0; i < slots.length; i++) {
 								if (getSlot(slots[i]) === null) {
@@ -4236,7 +4281,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					},
 					pickItem = function (e) {
 						var names,
-							target = e.target.tagName === 'IMG' ? e.target.parentNode : e.target,
+							target = !e.target.dataset.id ? e.target.parentNode : e.target,
 							result = appendSlot(target.dataset.id);
 						if (result !== -1) {
 							/*dropdown.removeChild(ul);
